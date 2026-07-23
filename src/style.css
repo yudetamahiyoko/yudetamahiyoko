@@ -1,0 +1,718 @@
+:root {
+  --charcoal: #1c1a17;
+  --charcoal-light: #2b2723;
+  --mustard: #e0a527;
+  --mustard-dim: #8a6a1f;
+  --mustard-deep: #b5741f;
+  --paper: #f5ecd8;
+  --panel: #fffaf0;
+  --ink: #2b2620;
+  --ink-soft: #6b5f4d;
+  --role-S: #3b82c4;
+  --role-V: #d9622f;
+  --role-O: #4f8f4a;
+  --role-O1: #1f9e8e;
+  --role-O2: #4f8f4a;
+  --role-C: #9459c9;
+  --role-M: #8a7a5c;
+  --bottom-bar-h: 108px;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-bottom: var(--bottom-bar-h);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.stage {
+  width: min(640px, 96vw);
+  height: calc(100dvh - var(--bottom-bar-h));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--mustard-dim), 0 12px 32px rgba(43, 38, 32, 0.12);
+}
+
+.order-slip {
+  margin: 0;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px;
+  transform: rotate(-1.5deg);
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--mustard-deep);
+  letter-spacing: 0.05em;
+}
+
+.bpm {
+  margin: 0;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+}
+
+.stage-pattern {
+  font-weight: 700;
+  color: var(--mustard-deep);
+}
+
+.score-value {
+  font-weight: 800;
+  color: var(--mustard-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.combo-value {
+  font-weight: 800;
+  color: #d9622f;
+}
+
+.level-tabs {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.level-tab {
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  background: rgba(43, 38, 32, 0.07);
+  border: none;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.level-tab:hover {
+  background: rgba(43, 38, 32, 0.13);
+}
+
+.level-tab.active {
+  color: #fff;
+  background: var(--mustard-deep);
+}
+
+.level-tab.locked {
+  color: #a89d8c;
+  background: rgba(43, 38, 32, 0.04);
+  cursor: not-allowed;
+}
+
+.level-tab.locked:hover {
+  background: rgba(43, 38, 32, 0.04);
+}
+
+.level-tab.just-unlocked {
+  animation: tab-unlock 0.6s ease;
+}
+
+@keyframes tab-unlock {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(224, 165, 39, 0.7);
+  }
+  40% {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 6px rgba(224, 165, 39, 0.35);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(224, 165, 39, 0);
+  }
+}
+
+.ticket {
+  background: #fffdf6;
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 0.5rem 1rem 0.6rem;
+  border-top: 3px dashed #d8c79c;
+  border-bottom: 3px dashed #d8c79c;
+  text-align: center;
+  min-width: 220px;
+}
+
+.ticket-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: #b23a2e;
+  font-weight: 800;
+}
+
+.ticket-text-en {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.ticket-text-jp {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-top: 0.15rem;
+}
+
+.metronome-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.beat-indicator {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--mustard-dim);
+  box-shadow: inset 0 0 0 3px var(--mustard);
+}
+
+.beat-indicator.pulse {
+  animation: pulse 0.15s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1.35);
+    background: var(--mustard);
+  }
+  100% {
+    transform: scale(1);
+    background: var(--mustard-dim);
+  }
+}
+
+.beat-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.beat-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(43, 38, 32, 0.12);
+  box-shadow: inset 0 0 0 2px var(--mustard-dim);
+  transition: background 0.05s ease-out;
+}
+
+.beat-dot.active {
+  background: var(--mustard);
+}
+
+.game-board {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.tower-area {
+  width: 100%;
+  min-height: 108px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tower-area.zoomed-out {
+  transform: scale(0.74) translateY(-10px);
+}
+
+.tower-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 100%;
+}
+
+/* Cosmetic-only: a mistimed hit still lands, this just visibly says "a bit
+   sloppy" without ever threatening the tower itself. */
+.tower-wrap.wobble {
+  animation: tower-wobble 0.35s ease-in-out;
+}
+
+@keyframes tower-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-4deg);
+  }
+  60% {
+    transform: rotate(3deg);
+  }
+}
+
+.tower-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.tower-base {
+  width: 120px;
+  height: 15px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--wood, #8b5e34), #6e4a28);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.tray {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 12px;
+  background: rgba(43, 38, 32, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(43, 38, 32, 0.15);
+  min-height: 72px;
+}
+
+/* Chunk "card": a big emoji fills the card, tinted by grammatical role, with
+   the English word overlaid directly on top of it (centered). Used in both
+   the tray and (smaller, once placed) on the tower. */
+.tray-chunk {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: var(--charcoal);
+  box-shadow: inset 0 0 0 3px var(--role-color, var(--mustard-dim));
+  cursor: pointer;
+}
+
+.tray-chunk-role-S {
+  --role-color: var(--role-S);
+}
+.tray-chunk-role-V {
+  --role-color: var(--role-V);
+}
+.tray-chunk-role-O {
+  --role-color: var(--role-O);
+}
+.tray-chunk-role-O1 {
+  --role-color: var(--role-O1);
+}
+.tray-chunk-role-O2 {
+  --role-color: var(--role-O2);
+}
+.tray-chunk-role-C {
+  --role-color: var(--role-C);
+}
+.tray-chunk-role-M {
+  --role-color: var(--role-M);
+}
+
+.tray-chunk-icon {
+  font-size: 2.7rem;
+  line-height: 1;
+}
+
+.tray-chunk-word {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 5px;
+  white-space: nowrap;
+  max-width: 92%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tray-chunk-role {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.48rem;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+}
+
+.game-board.hide-role-labels .tray-chunk-role {
+  display: none;
+}
+
+.tray-chunk.bob {
+  animation: chunk-bob 0.5s ease-in-out;
+}
+
+@keyframes chunk-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+}
+
+/* An expanding ring that pings outward in sync with every beat on the
+   currently-expected chunk — a much louder "tap now" cue than the bob alone. */
+.tray-chunk::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 18px;
+  border: 3px solid var(--role-color, var(--mustard));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tray-chunk.beat-ring::after {
+  animation: beat-ring-pulse 0.5s ease-out;
+}
+
+@keyframes beat-ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.tray-chunk.landed-just {
+  animation: landed-just-flash 0.5s ease-out;
+}
+
+@keyframes landed-just-flash {
+  0% {
+    box-shadow: inset 0 0 0 3px var(--role-color, var(--mustard-dim)), 0 0 22px 6px rgba(224, 165, 39, 0.9);
+    transform: scale(1.15);
+  }
+  100% {
+    box-shadow: inset 0 0 0 3px var(--role-color, var(--mustard-dim));
+    transform: scale(1);
+  }
+}
+
+.tray-chunk.landed-ok {
+  animation: landed-ok-flash 0.4s ease-out;
+}
+
+@keyframes landed-ok-flash {
+  0% {
+    box-shadow: inset 0 0 0 3px var(--role-color, var(--mustard-dim)), 0 0 12px 3px rgba(224, 165, 39, 0.5);
+  }
+  100% {
+    box-shadow: inset 0 0 0 3px var(--role-color, var(--mustard-dim));
+  }
+}
+
+.tray-chunk.landed-miss {
+  animation: landed-miss-dull 0.4s ease-out;
+}
+
+@keyframes landed-miss-dull {
+  0% {
+    filter: grayscale(0.6) brightness(0.8);
+  }
+  100% {
+    filter: none;
+  }
+}
+
+.tray-chunk.bounce {
+  animation: chunk-bounce 0.3s ease;
+}
+
+@keyframes chunk-bounce {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+.tray-chunk.flying {
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tray-chunk.placed {
+  width: 78px;
+  height: 54px;
+  cursor: default;
+  margin-top: -6px;
+}
+
+.tray-chunk.placed .tray-chunk-icon {
+  font-size: 1.7rem;
+}
+
+.dish-name {
+  min-height: 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--mustard-deep);
+  font-family: Georgia, 'Hiragino Mincho ProN', serif;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.dish-name.show {
+  opacity: 1;
+}
+
+.judgment-popup {
+  min-height: 1.3rem;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.judgment-popup.just {
+  color: #2f9e4a;
+}
+
+.judgment-popup.ok {
+  color: var(--mustard-deep);
+}
+
+.judgment-popup.miss {
+  color: #c0392b;
+}
+
+.judgment-popup.combo-break {
+  color: var(--ink-soft);
+}
+
+.tally {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+  background: var(--panel);
+  box-shadow: 0 -6px 18px rgba(43, 38, 32, 0.12);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.mode-toggle input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--mustard-deep);
+  cursor: pointer;
+}
+
+button {
+  padding: 0.5rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  background: var(--mustard);
+  color: var(--charcoal);
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f0b93f;
+}
+
+.recipe-book-btn {
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(43, 38, 32, 0.07);
+  color: var(--ink-soft);
+  border-radius: 999px;
+}
+
+.recipe-book-btn:hover {
+  background: rgba(43, 38, 32, 0.13);
+}
+
+.recipe-book-btn.just-collected {
+  animation: tab-unlock 0.6s ease;
+}
+
+.recipe-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(28, 26, 23, 0.55);
+}
+
+.recipe-modal.show {
+  display: flex;
+}
+
+.recipe-modal-inner {
+  width: min(560px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 1rem 1.25rem 1.25rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.recipe-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.recipe-modal-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--mustard-deep);
+}
+
+.recipe-modal-close {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+  background: rgba(43, 38, 32, 0.1);
+  color: var(--ink);
+}
+
+.recipe-modal-close:hover {
+  background: rgba(43, 38, 32, 0.2);
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 0.6rem;
+}
+
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.55rem 0.4rem;
+  border-radius: 10px;
+  background: #fffdf6;
+  box-shadow: inset 0 0 0 1px rgba(43, 38, 32, 0.12);
+  text-align: center;
+}
+
+.recipe-card-icon {
+  font-size: 1.4rem;
+}
+
+.recipe-card-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.recipe-card-en {
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+}
+
+.recipe-card-stage {
+  font-size: 0.58rem;
+  color: var(--mustard-deep);
+  font-weight: 700;
+}
+
+.recipe-card.locked {
+  opacity: 0.5;
+}
+
+.recipe-card.locked .recipe-card-icon {
+  filter: grayscale(1);
+}
+
+.recipe-card.locked .recipe-card-name {
+  color: var(--ink-soft);
+}
