@@ -1,0 +1,57 @@
+# Publishes the game to GitHub Pages on every push to the default branch.
+#
+# Builds from source rather than committing the bundle, because dist/ is
+# gitignored — the deployed page is always generated from the code in the commit
+# being deployed, so the live URL can't drift from the repository.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  # Lets the deploy be re-run from the Actions tab without a new commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let an in-progress deploy finish; queue at most one behind it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # `npm run build` type-checks and bundles; inline-build folds the CSS and
+      # JS into dist/share/index.html so the published page is a single
+      # self-contained file with no sub-resource requests.
+      - run: npm run build
+      - run: node scripts/inline-build.mjs
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/share
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -40,6 +40,215 @@ body {
   font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.title-screen,
+.tutorial-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--paper);
+}
+
+.title-card,
+.tutorial-card {
+  width: min(420px, 100%);
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  text-align: center;
+  box-shadow: 0 0 0 1px var(--mustard-dim), 0 16px 40px rgba(43, 38, 32, 0.18);
+}
+
+.title-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+  color: var(--mustard-deep);
+}
+
+.title-heading {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
+  color: var(--mustard-deep);
+}
+
+.title-sub {
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.tutorial-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  color: var(--mustard-deep);
+}
+
+.tutorial-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.tutorial-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.tutorial-icon {
+  font-size: 1.3rem;
+  flex: none;
+}
+
+.tutorial-goal {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--mustard-deep);
+}
+
+.help-btn {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(43, 38, 32, 0.07);
+  color: var(--ink-soft);
+  border-radius: 999px;
+}
+
+.help-btn:hover {
+  background: rgba(43, 38, 32, 0.13);
+}
+
+.mute-btn {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  background: rgba(43, 38, 32, 0.07);
+  color: var(--ink-soft);
+  border-radius: 999px;
+}
+
+.mute-btn:hover {
+  background: rgba(43, 38, 32, 0.13);
+}
+
+.delicious-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  background: radial-gradient(circle at 50% 45%, #fff3d6 0%, var(--mustard) 55%, var(--mustard-deep) 100%);
+}
+
+.delicious-overlay.show {
+  display: flex;
+  animation: delicious-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes delicious-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Same contrast problem as the recipe card: this overlay's background is a
+   bright cream-to-mustard glow, which swallows the pale icons. The dish sits on
+   a dark round plate so it stays legible and reads as a served dish. */
+.delicious-emojis {
+  font-size: 5rem;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10.5rem;
+  height: 10.5rem;
+  border-radius: 50%;
+  background: var(--charcoal);
+  box-shadow: 0 8px 18px rgba(43, 38, 32, 0.35);
+}
+
+.delicious-label {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--charcoal);
+}
+
+.delicious-dish {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  font-family: Georgia, 'Hiragino Mincho ProN', serif;
+}
+
+/* Distinct from .delicious-overlay (dish quality) on purpose — this marks a
+   different kind of moment (level progression), so it gets its own color. */
+.levelup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 36;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2rem;
+  text-align: center;
+  background: radial-gradient(circle at 50% 45%, #f3e6ff 0%, #9459c9 55%, #5f3785 100%);
+}
+
+.levelup-overlay.show {
+  display: flex;
+  animation: delicious-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.levelup-emoji {
+  font-size: 4rem;
+  filter: drop-shadow(0 8px 18px rgba(43, 38, 32, 0.35));
+}
+
+.levelup-label {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.levelup-sub {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f3e6ff;
+}
+
 .stage {
   width: min(640px, 96vw);
   height: calc(100dvh - var(--bottom-bar-h));
@@ -310,20 +519,35 @@ h1 {
   min-height: 72px;
 }
 
-/* Chunk "card": a big emoji fills the card, tinted by grammatical role, with
-   the English word overlaid directly on top of it (centered). Used in both
-   the tray and (smaller, once placed) on the tower. */
+/* Chunk "card": an illustration on top, the English word underneath, framed in
+   the chunk's grammatical-role color. Used in both the tray and (smaller, once
+   placed) on the tower.
+   The word used to sit ON the artwork, which was fine for an emoji but hides
+   the middle of a drawn icon — exactly the part that identifies it. Stacking
+   them keeps both readable. Width stays 78px so the tray's wrapping is
+   unchanged; only the height grows to fit the second row. */
 .tray-chunk {
   position: relative;
   width: 78px;
-  height: 78px;
+  height: 90px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 3px;
+  /* Top padding clears the absolutely-positioned role chip in the corner. */
+  padding: 20px 3px 6px;
   border-radius: 14px;
   background: var(--charcoal);
   box-shadow: inset 0 0 0 3px var(--role-color, var(--mustard-dim));
   cursor: pointer;
+}
+
+/* When the role chip is hidden (応用編 / the exam's no-hints tray) the space
+   reserved for it would otherwise leave the artwork sitting too low. */
+.game-board.hide-role-labels .tray-chunk,
+.exam-tower .tray-chunk {
+  padding-top: 8px;
 }
 
 .tray-chunk-role-S {
@@ -349,37 +573,90 @@ h1 {
 }
 
 .tray-chunk-icon {
-  font-size: 2.7rem;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
 }
 
+/* SVG icons and the emoji they're replacing must occupy the same box, so a
+   card looks identical in size whether or not its concept has an icon yet. */
+.chunk-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: block;
+}
+
+.chunk-emoji {
+  font-size: 2.05rem;
+  line-height: 1;
+}
+
+.tray-chunk.placed .chunk-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.tray-chunk.placed .chunk-emoji {
+  font-size: 1.3rem;
+}
+
+/* A recipe card pictures ONE dish, so its icon gets the whole tile rather than
+   sharing the row with the sentence's parts. */
+.dish-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: block;
+  margin: 0 auto;
+}
+
+.dish-icon-large {
+  width: 7rem;
+  height: 7rem;
+  display: block;
+  margin: 0 auto;
+}
+
+.dish-icon-fallback {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.dish-icon-large.dish-icon-fallback {
+  font-size: 7rem;
+}
+
+/* Sits below the artwork now, so it needs no dark pill to stay legible.
+   Wrapping to two lines instead of ellipsizing matters here: the player is
+   assembling a sentence, so a clipped "in five min…" costs real information. */
 .tray-chunk-word {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.65);
+  width: 100%;
   color: #fff;
   font-weight: 800;
-  font-size: 0.65rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 5px;
-  white-space: nowrap;
-  max-width: 92%;
+  font-size: 0.56rem;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .tray-chunk-role {
   position: absolute;
   top: 4px;
   left: 6px;
-  font-size: 0.48rem;
+  font-family: ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  font-size: 0.72rem;
   font-weight: 800;
+  letter-spacing: 0.02em;
   color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  padding: 0.05rem 0.35rem;
-  border-radius: 4px;
+  background: var(--role-color, rgba(0, 0, 0, 0.55));
+  padding: 0.08rem 0.4rem;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .game-board.hide-role-labels .tray-chunk-role {
@@ -492,13 +769,23 @@ h1 {
 
 .tray-chunk.placed {
   width: 78px;
-  height: 54px;
+  height: 58px;
   cursor: default;
   margin-top: -6px;
+  padding: 15px 3px 4px;
+  gap: 1px;
 }
 
-.tray-chunk.placed .tray-chunk-icon {
-  font-size: 1.7rem;
+/* Stacked cards are read as one sentence top-to-bottom, so keep the word on a
+   single line here — two-line wrapping would make the tower jump in height. */
+.tray-chunk.placed .tray-chunk-word {
+  -webkit-line-clamp: 1;
+  font-size: 0.52rem;
+}
+
+.game-board.hide-role-labels .tray-chunk.placed,
+.exam-tower .tray-chunk.placed {
+  padding-top: 5px;
 }
 
 .dish-name {
@@ -684,8 +971,19 @@ button:hover {
   text-align: center;
 }
 
+/* The icons were drawn for the dark chunk card, so several of them are mostly
+   white or cream (rice, milk, a teacup) and vanish against this light panel.
+   Seating each dish on a dark tile restores the contrast they were designed
+   for, and matches the look of the cards the player taps during play. */
 .recipe-card-icon {
   font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.35rem 0;
+  border-radius: 8px;
+  background: var(--charcoal);
 }
 
 .recipe-card-name {
@@ -714,5 +1012,261 @@ button:hover {
 }
 
 .recipe-card.locked .recipe-card-name {
+  color: var(--ink-soft);
+}
+
+/* Graduation exam (卒業試験) */
+
+.exam-entry-btn {
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(43, 38, 32, 0.07);
+  color: var(--ink-soft);
+  border-radius: 999px;
+}
+
+.exam-entry-btn:hover:not(:disabled) {
+  background: rgba(43, 38, 32, 0.13);
+}
+
+.exam-entry-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.exam-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(28, 26, 23, 0.65);
+}
+
+.exam-modal.show {
+  display: flex;
+}
+
+.exam-modal-inner {
+  position: relative;
+  width: min(480px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 1.5rem 1.25rem 1.25rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.exam-close-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8rem;
+  background: rgba(43, 38, 32, 0.1);
+  color: var(--ink);
+}
+
+.exam-close-btn:hover {
+  background: rgba(43, 38, 32, 0.2);
+}
+
+.exam-phase h2 {
+  margin: 0 0 0.5rem;
+  color: var(--mustard-deep);
+}
+
+/* 師匠 speech bubble: a round portrait avatar with a name tag, paired with
+   a chat-style bubble that has a small triangular tail pointing back at
+   the avatar — reads as "this character is speaking" rather than a
+   floating line of text. */
+.exam-master {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+  text-align: left;
+}
+
+.exam-master-avatar {
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  background: var(--panel);
+  border: 2px solid var(--mustard-deep);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(43, 38, 32, 0.2);
+}
+
+.exam-master-name {
+  position: absolute;
+  bottom: -0.55rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--mustard-deep);
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.exam-master-bubble {
+  position: relative;
+  flex: 1;
+  background: var(--charcoal);
+  color: #fff;
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+}
+
+.exam-master-bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 14px;
+  border-width: 6px 8px 6px 0;
+  border-style: solid;
+  border-color: transparent var(--charcoal) transparent transparent;
+}
+
+.exam-master-bubble p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.exam-desc {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.exam-phase-label {
+  font-weight: 800;
+  color: var(--mustard-deep);
+  margin: 0 0 0.4rem;
+}
+
+.exam-progress {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.5rem;
+}
+
+.exam-timer-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(43, 38, 32, 0.12);
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.exam-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--mustard-deep);
+}
+
+.exam-timer-fill.run {
+  animation: exam-timer-countdown 6s linear forwards;
+}
+
+@keyframes exam-timer-countdown {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.exam-order-card {
+  background: var(--charcoal);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.exam-sentence-en {
+  font-weight: 800;
+  font-size: 1rem;
+  margin: 0 0 0.3rem;
+}
+
+.exam-sentence-jp {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.exam-pattern-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.exam-pattern-buttons button {
+  flex: 1 1 30%;
+  min-width: 80px;
+  padding: 0.5rem 0.4rem;
+  font-size: 0.85rem;
+}
+
+.exam-pattern-buttons button.correct {
+  background: #6fae5a;
+  color: #fff;
+}
+
+.exam-pattern-buttons button.wrong {
+  background: #c15b4a;
+  color: #fff;
+}
+
+.exam-feedback {
+  min-height: 1.2em;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.exam-mistakes {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.5rem;
+}
+
+.exam-tower {
+  min-height: 260px;
+}
+
+/* Exam practical is a no-hints test — role labels stay hidden regardless
+   of the practice-mode toggle. */
+.exam-tower .tray-chunk-role {
+  display: none;
+}
+
+.exam-result-emoji {
+  font-size: 2.4rem;
+  margin: 0 0 0.25rem;
+}
+
+.exam-result-sub {
+  font-size: 0.8rem;
   color: var(--ink-soft);
 }

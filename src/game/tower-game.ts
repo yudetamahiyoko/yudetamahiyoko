@@ -2,6 +2,7 @@ import { judgeTapTiming } from './judge';
 import type { TimingJudgment } from './judge';
 import type { Chunk, Puzzle } from './stage-data';
 import { playJust, playOk, playMissLand, playWrongWord } from '../audio/synth';
+import { chunkFaceMarkup } from '../ui/icon-map';
 
 export type LandEvent =
   | { kind: 'wrong-word' }
@@ -33,6 +34,7 @@ export class TowerGame {
   private onLand: (event: LandEvent) => void;
 
   private audioContext: AudioContext;
+  private audioDestination: AudioNode;
   private beatTimes: number[] = [];
   private pulseQueue: number[] = [];
   private puzzle: Puzzle | undefined;
@@ -40,8 +42,14 @@ export class TowerGame {
   private nextSeq = 0;
   private awaitingFirstTap = true;
 
-  constructor(audioContext: AudioContext, root: HTMLDivElement, onLand: (event: LandEvent) => void) {
+  constructor(
+    audioContext: AudioContext,
+    audioDestination: AudioNode,
+    root: HTMLDivElement,
+    onLand: (event: LandEvent) => void,
+  ) {
     this.audioContext = audioContext;
+    this.audioDestination = audioDestination;
     this.root = root;
     this.onLand = onLand;
 
@@ -60,7 +68,14 @@ export class TowerGame {
     this.trayEl = this.root.querySelector('#tray')!;
   }
 
-  loadPuzzle(puzzle: Puzzle): void {
+  // `decoys` are extra chunks shown in the tray that aren't part of this
+  // sentence at all — used by the graduation exam's practical phase to test
+  // whether the player can tell which words actually belong, not just tap
+  // everything in front of them. Each decoy gets its own negative seq
+  // (never equal to nextSeq, which only ever counts up from 0) so tapping
+  // one always falls into the "wrong word" branch below, and each decoy's
+  // seq stays distinct so a click always resolves back to the right element.
+  loadPuzzle(puzzle: Puzzle, decoys: Chunk[] = []): void {
     this.puzzle = puzzle;
     this.nextSeq = 0;
     this.awaitingFirstTap = true;
@@ -71,11 +86,12 @@ export class TowerGame {
     this.towerAreaEl.classList.remove('zoomed-out');
 
     const order = puzzle.chunks.map((chunk, seq) => ({ chunk, seq }));
-    this.items = shuffle(order).map(({ chunk, seq }) => {
+    const decoyEntries = decoys.map((chunk, i) => ({ chunk, seq: -(i + 1) }));
+    this.items = shuffle([...order, ...decoyEntries]).map(({ chunk, seq }) => {
       const el = document.createElement('div');
       el.className = `tray-chunk tray-chunk-role-${chunk.r}`;
       el.innerHTML = `
-        <span class="tray-chunk-icon" aria-hidden="true">${chunk.e}</span>
+        <span class="tray-chunk-icon" aria-hidden="true">${chunkFaceMarkup(chunk)}</span>
         <span class="tray-chunk-word">${chunk.t}</span>
         <span class="tray-chunk-role">${chunk.r}</span>
       `;
@@ -141,7 +157,7 @@ export class TowerGame {
       item.el.classList.remove('bounce');
       void item.el.offsetWidth;
       item.el.classList.add('bounce');
-      playWrongWord(this.audioContext);
+      playWrongWord(this.audioContext, this.audioDestination);
       this.onLand({ kind: 'wrong-word' });
       return;
     }
@@ -156,11 +172,11 @@ export class TowerGame {
     this.awaitingFirstTap = false;
 
     if (timing === 'just') {
-      playJust(this.audioContext);
+      playJust(this.audioContext, this.audioDestination);
     } else if (timing === 'ok') {
-      playOk(this.audioContext);
+      playOk(this.audioContext, this.audioDestination);
     } else {
-      playMissLand(this.audioContext);
+      playMissLand(this.audioContext, this.audioDestination);
       this.towerWrapEl.classList.remove('wobble');
       void this.towerWrapEl.offsetWidth;
       this.towerWrapEl.classList.add('wobble');

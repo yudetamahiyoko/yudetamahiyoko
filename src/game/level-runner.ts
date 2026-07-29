@@ -1,10 +1,14 @@
 import type { Puzzle, Stage } from './stage-data';
 
-// 入門 = just SV, to get comfortable with the tap/keyboard controls.
-// レベル1 mixes the three simplest patterns (SV/SVC/SVO); レベル2 the two
-// harder ones (SVOO/SVOC); レベル3 mixes all five. Each level draws its
-// puzzles from the given stage indices into one shuffled pool, rather than
-// working through stages one at a time.
+// Stage order (see stage-data.ts): 0 SV, 1 SVM, 2 SVC, 3 SVCM, 4 SVO,
+// 5 SVOM, 6 SVOO, 7 SVOOM, 8 SVOC, 9 SVOCM.
+//
+// 入門 = just plain SV, to get comfortable with the tap/keyboard controls.
+// レベル1 mixes the three simplest patterns, with and without a modifier
+// (SV/SVM/SVC/SVCM/SVO/SVOM); レベル2 the two harder ones, with and without
+// a modifier (SVOO/SVOOM/SVOC/SVOCM); レベル3 mixes all ten. Each level
+// draws its puzzles from the given stage indices into one shuffled pool,
+// rather than working through stages one at a time.
 export interface LevelDef {
   label: string;
   stageIndices: number[];
@@ -13,9 +17,9 @@ export interface LevelDef {
 
 export const LEVELS: LevelDef[] = [
   { label: '入門', stageIndices: [0], unlockScore: 0 },
-  { label: 'レベル1', stageIndices: [0, 1, 2], unlockScore: 500 },
-  { label: 'レベル2', stageIndices: [3, 4], unlockScore: 2000 },
-  { label: 'レベル3', stageIndices: [0, 1, 2, 3, 4], unlockScore: 5000 },
+  { label: 'レベル1', stageIndices: [0, 1, 2, 3, 4, 5], unlockScore: 500 },
+  { label: 'レベル2', stageIndices: [6, 7, 8, 9], unlockScore: 2000 },
+  { label: 'レベル3', stageIndices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], unlockScore: 5000 },
 ];
 
 interface PoolEntry {

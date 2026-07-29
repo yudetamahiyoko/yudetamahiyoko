@@ -8,6 +8,8 @@
 // multiplier, while a mistimed hit (Miss) breaks the combo without ever
 // costing tower progress. A wrong-word tap doesn't touch score or combo at
 // all, since it never even reached the tower.
+import { readStored, writeStored } from '../util/storage';
+
 const STORAGE_KEY = 'bunkei-kitchen-score';
 
 const BASE_POINTS: Record<'just' | 'ok' | 'miss', number> = {
@@ -21,7 +23,7 @@ export class ScoreTracker {
   combo = 0;
 
   constructor() {
-    const saved = Number(localStorage.getItem(STORAGE_KEY));
+    const saved = Number(readStored(STORAGE_KEY));
     this.score = Number.isFinite(saved) && saved > 0 ? saved : 0;
   }
 
@@ -41,6 +43,6 @@ export class ScoreTracker {
   }
 
   private persist(): void {
-    localStorage.setItem(STORAGE_KEY, String(this.score));
+    writeStored(STORAGE_KEY, String(this.score));
   }
 }

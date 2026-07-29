@@ -3,13 +3,15 @@
 // puzzles; actually completing one of those puzzles is what "collects" its
 // dish into the recipe book — a tangible, permanent reward on top of the
 // pure score/level-unlock loop.
+import { readStored, writeStored } from '../util/storage';
+
 const STORAGE_KEY = 'bunkei-kitchen-collection';
 
 export class RecipeCollection {
   private collected: Set<string>;
 
   constructor() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = readStored(STORAGE_KEY);
     let parsed: unknown = [];
     try {
       parsed = saved ? JSON.parse(saved) : [];
@@ -37,6 +39,6 @@ export class RecipeCollection {
   }
 
   private persist(): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...this.collected]));
+    writeStored(STORAGE_KEY, JSON.stringify([...this.collected]));
   }
 }
