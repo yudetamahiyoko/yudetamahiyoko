@@ -182,20 +182,23 @@ body {
   }
 }
 
-/* Same contrast problem as the recipe card: this overlay's background is a
-   bright cream-to-mustard glow, which swallows the pale icons. The dish sits on
-   a dark round plate so it stays legible and reads as a served dish. */
+/* Holds the kitchen scene. The scene brings its own dark interior, which also
+   solves the contrast problem this overlay has: its background is a bright
+   cream-to-mustard glow that would swallow the pale icons. */
 .delicious-emojis {
   font-size: 5rem;
   line-height: 1.2;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 10.5rem;
-  height: 10.5rem;
-  border-radius: 50%;
-  background: var(--charcoal);
-  box-shadow: 0 8px 18px rgba(43, 38, 32, 0.35);
+  filter: drop-shadow(0 10px 22px rgba(43, 38, 32, 0.4));
+}
+
+.scene-svg {
+  display: block;
+  width: min(320px, 82vw);
+  height: auto;
+  border-radius: 14px;
 }
 
 .delicious-label {

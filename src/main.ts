@@ -11,7 +11,9 @@ import { ScoreTracker } from './game/score-tracker';
 import { RecipeCollection } from './game/recipe-collection';
 import { ExamStatus } from './game/exam-status';
 import { installIconSprite } from './ui/icons';
-import { dishFaceMarkup } from './ui/dish-icon';
+import { dishFaceMarkup, dishIconId } from './ui/dish-icon';
+import { installSceneSprite, sceneIdForVerbIcon, sceneMarkup } from './ui/scenes';
+import { iconIdFor } from './ui/icon-map';
 import { readStored, writeStored } from './util/storage';
 import { buildRecognitionSet, buildPracticalSet, PATTERN_LABELS } from './game/exam-data';
 import type { BasePattern } from './game/exam-data';
@@ -459,7 +461,9 @@ function handleLand(event: LandEvent): void {
       }
 
       if (grade.label === '美味しい！') {
-        deliciousEmojisEl.innerHTML = dishFaceMarkup(finishedPuzzle.dish, 'dish-icon-large');
+        const verbChunk = finishedPuzzle.chunks.find((c) => c.r === 'V');
+        const sceneId = sceneIdForVerbIcon(verbChunk ? iconIdFor(verbChunk) : undefined);
+        deliciousEmojisEl.innerHTML = sceneMarkup(sceneId, dishIconId(finishedPuzzle.dish));
         deliciousDishEl.textContent = finishedPuzzle.dish;
         deliciousOverlayEl.classList.add('show');
         deliciousOverlayTimer = window.setTimeout(() => {
@@ -800,6 +804,7 @@ function showExamResult(passed: boolean, detail: string): void {
 }
 
 installIconSprite();
+installSceneSprite();
 renderTicket();
 renderRecipeButton();
 renderExamEntry();
