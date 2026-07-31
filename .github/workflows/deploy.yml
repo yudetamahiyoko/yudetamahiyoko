@@ -40,7 +40,13 @@ jobs:
       - run: npm run build
       - run: node scripts/inline-build.mjs
 
+      # enablement turns Pages on via the API when it isn't configured yet.
+      # Without it this step fails with "Get Pages site failed" until someone
+      # switches Settings > Pages > Source to GitHub Actions by hand, which is an
+      # easy thing to miss and gives no hint about what went wrong.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
