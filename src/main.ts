@@ -15,6 +15,7 @@ import { dishFaceMarkup, dishIconId } from './ui/dish-icon';
 import { installSceneSprite, sceneIdForVerbIcon, sceneMarkup } from './ui/scenes';
 import { iconIdFor } from './ui/icon-map';
 import { readStored, writeStored } from './util/storage';
+import { setCustomerMood } from './ui/customer';
 import { buildRecognitionSet, buildPracticalSet, PATTERN_LABELS } from './game/exam-data';
 import type { BasePattern } from './game/exam-data';
 
@@ -421,13 +422,21 @@ function handleLand(event: LandEvent): void {
     tally.wrongWord += 1;
     puzzleStats.wrongWord += 1;
     showPopup('ちがう具材！', 'miss');
+    setCustomerMood(gameBoardEl, 'sad', 'あーあ…');
     renderTally();
     return;
   }
 
   const previouslyUnlocked = LEVELS.map((_, i) => isUnlocked(i));
 
+  const multiplierBefore = scoreTracker.multiplier;
   const gained = scoreTracker.registerLanding(event.timing);
+  // Cheer when the combo actually earns something — crossing into a higher
+  // multiplier — rather than on every landing, so the reaction stays a reward
+  // instead of constant background noise.
+  if (scoreTracker.multiplier > multiplierBefore) {
+    setCustomerMood(gameBoardEl, 'happy', 'おいしい！');
+  }
   if (event.timing === 'just') {
     showPopup(`Just! +${gained}`, 'just');
   } else if (event.timing === 'ok') {
@@ -447,6 +456,9 @@ function handleLand(event: LandEvent): void {
     const finishedPuzzle = runner.puzzle;
     const isNewRecipe = recipeCollection.collect(finishedPuzzle.dish);
     const grade = gradeForPuzzle(puzzleStats);
+    // Serving the finished order is the moment the customer is waiting for, so
+    // it overrides whatever mood the last tap left them in.
+    setCustomerMood(gameBoardEl, grade.label === 'まずい…' ? 'sad' : 'happy', grade.label, 2000);
     renderRecipeButton();
     renderExamEntry();
 

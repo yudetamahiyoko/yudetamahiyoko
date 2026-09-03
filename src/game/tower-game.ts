@@ -3,6 +3,7 @@ import type { TimingJudgment } from './judge';
 import type { Chunk, Puzzle } from './stage-data';
 import { playJust, playOk, playMissLand, playWrongWord } from '../audio/synth';
 import { chunkFaceMarkup } from '../ui/icon-map';
+import { customerMarkup } from '../ui/customer';
 
 export type LandEvent =
   | { kind: 'wrong-word' }
@@ -55,9 +56,12 @@ export class TowerGame {
 
     this.root.innerHTML = `
       <div class="tower-area" id="tower-area">
-        <div class="tower-wrap" id="tower-wrap">
-          <div class="tower-stack" id="tower-stack"></div>
-          <div class="tower-base"></div>
+        <div class="service-row">
+          <div class="tower-wrap" id="tower-wrap">
+            <div class="tower-stack" id="tower-stack"></div>
+            <div class="tower-base"></div>
+          </div>
+          ${customerMarkup()}
         </div>
       </div>
       <div class="tray" id="tray"></div>
@@ -205,8 +209,14 @@ export class TowerGame {
 
     const fromX = fromRect.left - rootRect.left;
     const fromY = fromRect.top - rootRect.top;
-    const toX = toRect.left - rootRect.left + toRect.width / 2 - fromRect.width / 2;
-    const toY = toRect.top - rootRect.top;
+    // The row grows rightward, so a card flies to the end of it rather than to
+    // the middle — landing where it will actually sit once appended.
+    const placedCount = this.towerStackEl.childElementCount;
+    const toX =
+      placedCount === 0
+        ? toRect.left - rootRect.left + toRect.width / 2 - fromRect.width / 2
+        : toRect.right - rootRect.left + 4;
+    const toY = toRect.bottom - rootRect.top - fromRect.height;
     const peakY = Math.min(fromY, toY) - 100;
     const midX = (fromX + toX) / 2;
 
