@@ -5,31 +5,30 @@
 // plate being handed over — which is what makes finishing a dish feel like
 // finishing a dish rather than scoring a point.
 //
-// Each scene leaves a clear space for the finished dish and the dish's own icon
-// is placed into it. That keeps the dish accurate (a 焼き鳥 stays a skewer)
+// The people and the dish come from the same Twemoji sprite the cards use, so
+// the characters here are the drawings the player has been tapping. The kitchen
+// around them is geometry.
+//
+// Built entirely from emoji this read as stickers on a shelf rather than a
+// room: emoji are drawn to be understood alone at small size, so side by side
+// they compete instead of composing, and several carry props that spill into
+// their neighbours (🫕 comes with forks). There is also no oven emoji — ♨️ was
+// standing in, and it reads as a hot spring. Equipment is therefore drawn.
+//
+// Each scene leaves a slot for the finished dish, and the dish's own icon is
+// placed into it. That keeps the dish accurate — a 焼き鳥 stays a skewer —
 // while the surroundings supply the cooking context, instead of the scene
 // trying to depict 200 different dishes itself.
-//
-// Layout contract for the 240x140 canvas: the counter surface is at y=104, so
-// anything resting on it bottoms out there and figures extend down to it rather
-// than floating. Each scene declares its own dish slot, because where the dish
-// belongs depends on the composition — on the counter beside the cook for the
-// cooking scenes, on the tray between two people for the serving one.
-const S = {
-  wall: '#2b2723',
-  counter: '#8a5a2b',
-  counterTop: '#b5741f',
-  metal: '#9fb6c9',
-  cream: '#f5ecd8',
-  white: '#ffffff',
-  mustard: '#e0a527',
-  red: '#c15b4a',
-  green: '#6fae5a',
-  skin: '#e8b98f',
-  dark: '#5c3a1a',
-  steam: '#9fb6c9',
-  blue: '#5aa9e6',
-};
+const WALL = '#2b2723';
+const COUNTER_TOP = '#b5741f';
+const COUNTER = '#8a5a2b';
+const TRAY = '#f5ecd8';
+const METAL = '#9fb6c9';
+const CREAM = '#f5ecd8';
+const FLAME = '#e0a527';
+const DARK = '#5c3a1a';
+const STEAM = '#9fb6c9';
+const WHITE = '#ffffff';
 
 const COUNTER_Y = 104;
 
@@ -39,36 +38,20 @@ export interface DishSlot {
   size: number;
 }
 
-// A cook drawn once and reused, so the same character appears across scenes.
-// The torso runs all the way down to the counter so the figure reads as
-// standing behind it rather than hovering.
-function cook(x: number, armPath: string): string {
-  const headCy = 42;
-  return `
-    <path d="M${x - 21} ${COUNTER_Y + 2} V${headCy + 30} a21 21 0 0 1 42 0 V${COUNTER_Y + 2} Z" fill="${S.white}"/>
-    <circle cx="${x}" cy="${headCy}" r="17" fill="${S.skin}"/>
-    <path d="M${x - 18} 32 a10 10 0 0 1 9-10 13 13 0 0 1 18 0 10 10 0 0 1 9 10 v4 h-36 z" fill="${S.white}"/>
-    <rect x="${x - 17}" y="33" width="34" height="7" rx="3.5" fill="${S.cream}"/>
-    <circle cx="${x - 6}" cy="45" r="2.6" fill="${S.dark}"/>
-    <circle cx="${x + 6}" cy="45" r="2.6" fill="${S.dark}"/>
-    <path d="${armPath}" stroke="${S.skin}" stroke-width="9" stroke-linecap="round" fill="none"/>
-  `;
-}
-
 const room = `
-  <rect x="0" y="0" width="240" height="140" fill="${S.wall}"/>
-  <rect x="0" y="${COUNTER_Y}" width="240" height="8" fill="${S.counterTop}"/>
-  <rect x="0" y="${COUNTER_Y + 8}" width="240" height="28" fill="${S.counter}"/>
+  <rect x="0" y="0" width="240" height="140" fill="${WALL}"/>
+  <rect x="0" y="${COUNTER_Y}" width="240" height="8" fill="${COUNTER_TOP}"/>
+  <rect x="0" y="${COUNTER_Y + 8}" width="240" height="28" fill="${COUNTER}"/>
 `;
+
+// Figures and props stand ON the counter line, so each is bottomed out at it.
+function at(id: string, x: number, size: number, bottom = COUNTER_Y): string {
+  return `<use href="#ci-${id}" x="${x}" y="${bottom - size}" width="${size}" height="${size}"/>`;
+}
 
 // Standing spot on the counter to the cook's right, used by every scene whose
 // action happens at the hob rather than across a table.
-//
-// The y is set so the artwork's own bottom edge meets the counter. Icons are
-// normalized to fill 58 of their 64-unit canvas centred, which leaves a margin
-// of size*3/64 inside the slot box — ignoring it left every dish hovering a few
-// pixels above the surface.
-const COUNTER_SLOT: DishSlot = { x: 166, y: 54, size: 52 };
+const COUNTER_SLOT: DishSlot = { x: 172, y: 52, size: 52 };
 
 interface Scene {
   shapes: string;
@@ -76,88 +59,77 @@ interface Scene {
 }
 
 const SCENES: Record<string, Scene> = {
-  // Cooking over heat: flames sit between the burner and the pot base so they
-  // stay visible rather than being covered by the pot.
+  // Flames sit between the burner and the pot base so they stay visible instead
+  // of being hidden behind the pot.
   stove: {
     shapes: `
       ${room}
-      <rect x="30" y="96" width="60" height="8" rx="3" fill="${S.metal}"/>
-      <path d="M46 96c-4-7 3-9 0-15 8 4 10 10 6 15zM64 96c-4-7 3-9 0-15 8 4 10 10 6 15z" fill="${S.mustard}"/>
-      <rect x="34" y="54" width="52" height="24" rx="5" fill="${S.metal}"/>
-      <rect x="28" y="47" width="64" height="8" rx="4" fill="${S.cream}"/>
-      <circle cx="46" cy="34" r="6" fill="${S.steam}"/>
-      <circle cx="64" cy="24" r="8" fill="${S.steam}"/>
-      ${cook(118, 'M100 66 L84 58')}
+      <rect x="30" y="96" width="60" height="8" rx="3" fill="${METAL}"/>
+      <path d="M46 96c-4-7 3-9 0-15 8 4 10 10 6 15zM64 96c-4-7 3-9 0-15 8 4 10 10 6 15z" fill="${FLAME}"/>
+      <rect x="34" y="54" width="52" height="24" rx="5" fill="${METAL}"/>
+      <rect x="28" y="47" width="64" height="8" rx="4" fill="${CREAM}"/>
+      <circle cx="46" cy="34" r="6" fill="${STEAM}"/>
+      <circle cx="64" cy="24" r="8" fill="${STEAM}"/>
+      ${at('chef', 100, 62)}
     `,
     slot: COUNTER_SLOT,
   },
-
   oven: {
     shapes: `
       ${room}
-      <rect x="20" y="44" width="76" height="60" rx="6" fill="${S.metal}"/>
-      <rect x="28" y="60" width="60" height="38" rx="4" fill="${S.dark}"/>
-      <path d="M34 90a24 14 0 0 1 48 0z" fill="${S.mustard}"/>
-      <rect x="28" y="49" width="60" height="6" rx="3" fill="${S.cream}"/>
-      ${cook(130, 'M112 66 L100 74')}
+      <rect x="20" y="44" width="76" height="60" rx="6" fill="${METAL}"/>
+      <rect x="28" y="60" width="60" height="38" rx="4" fill="${DARK}"/>
+      <path d="M34 90a24 14 0 0 1 48 0z" fill="${FLAME}"/>
+      <rect x="28" y="49" width="60" height="6" rx="3" fill="${CREAM}"/>
+      ${at('chef', 104, 62)}
     `,
     slot: COUNTER_SLOT,
   },
-
-  // Serving: the dish rides the tray between the cook and the guest, so it goes
-  // in the middle here rather than off to one side.
+  // Serving: the dish rides a tray between the cook and the person waiting, so
+  // it belongs in the middle here rather than off to one side.
   serve: {
     shapes: `
       ${room}
-      ${cook(44, 'M62 64 L96 60')}
-      <rect x="86" y="62" width="52" height="7" rx="3.5" fill="${S.cream}"/>
-      <path d="M185 ${COUNTER_Y + 2} V72 a21 21 0 0 1 42 0 V${COUNTER_Y + 2} Z" fill="${S.blue}"/>
-      <circle cx="206" cy="42" r="16" fill="${S.skin}"/>
-      <circle cx="200" cy="42" r="2.6" fill="${S.dark}"/>
-      <circle cx="212" cy="42" r="2.6" fill="${S.dark}"/>
-      <path d="M199 50a9 9 0 0 0 14 0z" fill="${S.red}"/>
+      ${at('chef', 8, 60)}
+      <rect x="80" y="96" width="70" height="8" rx="4" fill="${TRAY}"/>
+      ${at('recipient', 172, 60)}
     `,
-    slot: { x: 89, y: 16, size: 46 },
+    slot: { x: 89, y: 44, size: 52 },
   },
-
   prep: {
     shapes: `
       ${room}
-      <rect x="22" y="94" width="76" height="10" rx="3" fill="${S.cream}"/>
-      <path d="M74 46l9 5-27 39-7-5z" fill="${S.metal}"/>
-      <path d="M49 85l7 5-11 5z" fill="${S.dark}"/>
-      <circle cx="34" cy="88" r="6" fill="${S.red}"/>
-      <circle cx="50" cy="90" r="5" fill="${S.green}"/>
-      ${cook(118, 'M100 66 L80 56')}
+      <rect x="22" y="94" width="76" height="10" rx="3" fill="${CREAM}"/>
+      <path d="M74 46l9 5-27 39-7-5z" fill="${METAL}"/>
+      <path d="M49 85l7 5-11 5z" fill="${DARK}"/>
+      ${at('vegetables', 24, 34, 94)}
+      ${at('chef', 100, 62)}
     `,
     slot: COUNTER_SLOT,
   },
-
-  // Waiting: a lidded pot and a clock while the food changes on its own. The
-  // clock is kept above the dish slot so the two never collide.
+  // Waiting: a lidded pot and a clock while the food changes on its own.
   wait: {
     shapes: `
       ${room}
-      <rect x="26" y="62" width="54" height="42" rx="6" fill="${S.metal}"/>
-      <rect x="20" y="54" width="66" height="9" rx="4.5" fill="${S.cream}"/>
-      <rect x="48" y="44" width="10" height="12" rx="5" fill="${S.counter}"/>
-      <circle cx="200" cy="24" r="16" fill="${S.cream}"/>
-      <circle cx="200" cy="24" r="11" fill="${S.white}"/>
-      <path d="M200 24V16M200 24l7 5" stroke="${S.dark}" stroke-width="3.5" stroke-linecap="round"/>
-      ${cook(118, 'M100 68 L88 76')}
+      <rect x="26" y="62" width="54" height="42" rx="6" fill="${METAL}"/>
+      <rect x="20" y="54" width="66" height="9" rx="4.5" fill="${CREAM}"/>
+      <rect x="48" y="44" width="10" height="12" rx="5" fill="${COUNTER}"/>
+      <circle cx="200" cy="24" r="16" fill="${CREAM}"/>
+      <circle cx="200" cy="24" r="11" fill="${WHITE}"/>
+      <path d="M200 24V16M200 24l7 5" stroke="${DARK}" stroke-width="3.5" stroke-linecap="round"/>
+      ${at('chef', 100, 62)}
     `,
     slot: COUNTER_SLOT,
   },
-
   taste: {
     shapes: `
       ${room}
-      <rect x="24" y="66" width="50" height="38" rx="5" fill="${S.metal}"/>
-      <rect x="18" y="59" width="62" height="8" rx="4" fill="${S.cream}"/>
-      <circle cx="40" cy="46" r="6" fill="${S.steam}"/>
-      <circle cx="58" cy="36" r="7" fill="${S.steam}"/>
-      ${cook(118, 'M102 64 L110 52')}
-      <ellipse cx="109" cy="50" rx="8" ry="5.5" fill="${S.cream}"/>
+      <rect x="24" y="66" width="50" height="38" rx="5" fill="${METAL}"/>
+      <rect x="18" y="59" width="62" height="8" rx="4" fill="${CREAM}"/>
+      <circle cx="40" cy="46" r="6" fill="${STEAM}"/>
+      <circle cx="58" cy="36" r="7" fill="${STEAM}"/>
+      ${at('taste', 84, 30, 96)}
+      ${at('chef', 100, 62)}
     `,
     slot: COUNTER_SLOT,
   },
@@ -176,6 +148,7 @@ export function hasScene(id: string): boolean {
   return id in SCENES;
 }
 
+// Scenes reference the icon sprite, so they must be installed after it.
 export function installSceneSprite(): void {
   if (document.getElementById('scene-sprite')) return;
   const holder = document.createElement('div');

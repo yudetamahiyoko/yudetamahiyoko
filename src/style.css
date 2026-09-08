@@ -1379,3 +1379,16 @@ button:hover {
   font-size: 0.8rem;
   color: var(--ink-soft);
 }
+
+/* Twemoji is CC BY 4.0, which requires the credit to actually be visible, so it
+   lives on the how-to-play screen rather than only in a repository file. */
+.credit {
+  margin: 0.9rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.credit a {
+  color: var(--mustard-deep);
+}

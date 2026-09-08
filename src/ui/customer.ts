@@ -4,6 +4,11 @@
 // and handed to a person, so a finished sentence lands as "someone got their
 // order" rather than "a counter is now full".
 //
+// The head is a Twemoji face from the same sprite the cards use, so the figure
+// standing next to them belongs to the same drawing. Only the body is drawn
+// here, and only to give the face somewhere to stand — a bare floating head
+// beside the counter read as a sticker rather than a customer.
+//
 // Which events move them is a design decision, not a cosmetic one. Grammar is
 // the only thing that can fail in this game — a mistimed tap has never blocked
 // progress — so the customer only slumps when the WRONG INGREDIENT goes in.
@@ -11,63 +16,30 @@
 // would quietly reintroduce the failure state the game deliberately removed.
 export type CustomerMood = 'waiting' | 'happy' | 'sad';
 
-const C = {
-  skin: '#e8b98f',
-  hair: '#5c3a1a',
-  shirt: '#5aa9e6',
-  cream: '#f5ecd8',
-  white: '#ffffff',
-  dark: '#2b2620',
-  red: '#c15b4a',
-  mustard: '#e0a527',
-  spill: '#b5741f',
+const FACE_ICON: Record<CustomerMood, string> = {
+  waiting: 'faceWaiting',
+  happy: 'faceHappy',
+  sad: 'faceSad',
 };
 
-// One head, three expressions. Only the mouth and brows change, so the
-// character stays recognizably the same person across moods.
-function face(mood: CustomerMood): string {
-  if (mood === 'happy') {
-    return `
-      <path d="M30 44a5 5 0 0 1 10 0" stroke="${C.dark}" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <path d="M56 44a5 5 0 0 1 10 0" stroke="${C.dark}" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <path d="M36 56a13 13 0 0 0 24 0z" fill="${C.red}"/>
-    `;
-  }
-  if (mood === 'sad') {
-    // Brows rise toward the middle. Sloping them the other way reads as anger,
-    // which is a different feeling from the disappointment this is for.
-    return `
-      <circle cx="35" cy="47" r="3.2" fill="${C.dark}"/>
-      <circle cx="61" cy="47" r="3.2" fill="${C.dark}"/>
-      <path d="M28 43l12-5M68 43l-12-5" stroke="${C.dark}" stroke-width="3" stroke-linecap="round"/>
-      <path d="M40 61a8 8 0 0 1 16 0" stroke="${C.dark}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-    `;
-  }
-  return `
-    <circle cx="35" cy="45" r="3.2" fill="${C.dark}"/>
-    <circle cx="61" cy="45" r="3.2" fill="${C.dark}"/>
-    <path d="M40 57h16" stroke="${C.dark}" stroke-width="3.4" stroke-linecap="round"/>
-  `;
-}
+const SHIRT = '#5aa9e6';
+const SPILL = '#b5741f';
+const SPILL_FOOD = '#e0a527';
 
 function customerSvg(mood: CustomerMood): string {
-  // A dropped dish only appears in the sad state, which is what makes the
-  // mistake legible as "the order was ruined" instead of a mood swing.
+  // A dropped dish only appears in the sad state; that is what makes the
+  // mistake legible as "the order was ruined" rather than just a mood swing.
   const spill =
     mood === 'sad'
-      ? `<ellipse cx="70" cy="128" rx="20" ry="5" fill="${C.spill}"/>
-         <path d="M58 122a12 6 0 0 1 24 0z" fill="${C.mustard}"/>
-         <circle cx="88" cy="126" r="3.5" fill="${C.spill}"/>
-         <circle cx="52" cy="127" r="2.8" fill="${C.spill}"/>`
+      ? `<ellipse cx="70" cy="128" rx="20" ry="5" fill="${SPILL}"/>
+         <path d="M58 122a12 6 0 0 1 24 0z" fill="${SPILL_FOOD}"/>
+         <circle cx="88" cy="126" r="3.5" fill="${SPILL}"/>
+         <circle cx="52" cy="127" r="2.8" fill="${SPILL}"/>`
       : '';
   return `
     <svg class="customer-svg" viewBox="0 0 96 136" role="img" aria-label="お客さん">
-      <path d="M18 132V104a30 30 0 0 1 60 0v28z" fill="${C.shirt}"/>
-      <circle cx="48" cy="48" r="30" fill="${C.skin}"/>
-      <!-- Hair stops at y=34, above the brow line, so the expression stays
-           readable — drawn any lower it covers the eyes like a visor. -->
-      <path d="M21.5 34 A30 30 0 0 1 74.5 34 Z" fill="${C.hair}"/>
-      ${face(mood)}
+      <path d="M18 132V104a30 30 0 0 1 60 0v28z" fill="${SHIRT}"/>
+      <use href="#ci-${FACE_ICON[mood]}" x="14" y="12" width="68" height="68"/>
       ${spill}
     </svg>
   `;

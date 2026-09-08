@@ -32,8 +32,7 @@ function normalize(text: string): string {
 // Nouns share one table: "the bread" appears as a subject in SV stages and as
 // an object in SVO stages, and wants the same loaf either way.
 const NOUN_ICONS: Record<string, string> = {
-  // people — the pronouns all collapse onto one generic face, since a card
-  // saying "him" only needs to signal "a person", not a specific character.
+  // people
   cook: 'chef',
   chef: 'chef',
   waiter: 'chef',
@@ -47,21 +46,24 @@ const NOUN_ICONS: Record<string, string> = {
   girl: 'girl',
   children: 'children',
   students: 'students',
+  // Subjects get the plain figure; the people being served get a different one.
+  // Sharing a single `person` picture put two identical cards in one puzzle for
+  // sentences like "He gives her chocolate."
   i: 'person',
-  me: 'person',
   he: 'person',
-  him: 'person',
   she: 'person',
-  her: 'person',
   tom: 'person',
-  maria: 'person',
-  friend: 'person',
+  maria: 'personB',
   we: 'group',
-  us: 'group',
   they: 'group',
-  them: 'group',
   class: 'group',
   family: 'group',
+  me: 'recipient',
+  him: 'recipient',
+  her: 'recipient',
+  us: 'recipient',
+  them: 'recipient',
+  friend: 'recipient',
   // food and objects
   bread: 'bread',
   egg: 'egg',
@@ -116,7 +118,7 @@ const NOUN_ICONS: Record<string, string> = {
   spice: 'spice',
   lunch: 'lunch',
   // fixtures and abstractions that show up as subjects
-  oven: 'bake',
+  oven: 'oven',
   stove: 'stove',
   refrigerator: 'fridge',
   fridge: 'fridge',
@@ -124,12 +126,12 @@ const NOUN_ICONS: Record<string, string> = {
   timer: 'minutes',
   time: 'minutes',
   sun: 'afternoon',
-  heat: 'hot',
-  door: 'closed',
+  heat: 'bake',
+  door: 'door',
   room: 'kitchen',
-  menu: 'teach',
-  recipe: 'teach',
-  story: 'teach',
+  menu: 'menu',
+  recipe: 'recipe',
+  story: 'story',
 };
 
 const VERB_ICONS: Record<string, string> = {
@@ -280,11 +282,11 @@ const MODIFIER_ICONS: Record<string, string> = {
   together: 'together',
   'in the fridge': 'fridge',
   'on the stove': 'stove',
-  'in the oven': 'bake',
+  'in the oven': 'oven',
   'in the pot': 'boil',
-  'with a spoon': 'mix',
-  'with a knife': 'cut',
-  'at the party': 'give',
+  'with a spoon': 'spoon',
+  'with a knife': 'knife',
+  'at the party': 'party',
 };
 
 const TABLES: Record<RoleFamily, Record<string, string>> = {

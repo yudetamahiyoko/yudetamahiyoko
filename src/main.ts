@@ -55,6 +55,10 @@ app.innerHTML = `
       </ul>
       <p class="tutorial-goal">🍽️ 美味しい料理をたくさん作ろう！を目指そう！</p>
       <button id="tutorial-start-btn">はじめる</button>
+      <p class="credit">
+        具材のイラストは <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener">Twemoji</a>
+        （<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）を使用しています
+      </p>
     </div>
   </div>
 

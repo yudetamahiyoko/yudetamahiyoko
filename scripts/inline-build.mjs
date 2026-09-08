@@ -65,7 +65,11 @@ fs.writeFileSync(shareOut, html, 'utf8');
 
 for (const file of [out, fragmentOut, shareOut]) {
   const text = fs.readFileSync(file, 'utf8');
-  const externalRefs = [...text.matchAll(/(?:src|href)="([^"]+)"/g)]
+  // Only things the browser would FETCH count against self-containment. An
+  // <a href> is a link the reader may click — the required Twemoji credit is
+  // one — and does not cost a request on load.
+  const withoutLinks = text.replace(/<a\b[^>]*>/g, '');
+  const externalRefs = [...withoutLinks.matchAll(/(?:src|href)="([^"]+)"/g)]
     .map((m) => m[1])
     .filter((u) => !u.startsWith('data:') && !u.startsWith('#'));
   console.log(
