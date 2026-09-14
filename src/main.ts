@@ -102,7 +102,10 @@ app.innerHTML = `
       <input type="checkbox" id="mode-toggle" checked />
       <span id="mode-toggle-label">基礎編(役割ラベル表示あり)</span>
     </label>
-    <button id="start-btn">スタート</button>
+    <div class="run-buttons">
+      <button id="start-btn">スタート</button>
+      <button class="stop-btn hidden" id="stop-btn">⏸ 停止</button>
+    </div>
     <p class="hint">拍に合わせて浮き上がった具材をクリック、またはS/V/O/Cキー(O1は1、O2は2)でタップ</p>
   </div>
 
@@ -123,9 +126,11 @@ app.innerHTML = `
   </div>
 
   <div class="levelup-overlay" id="levelup-overlay">
-    <div class="levelup-emoji">🎉</div>
+    <div class="levelup-emoji" id="levelup-emoji">🎉</div>
     <div class="levelup-label" id="levelup-label"></div>
     <div class="levelup-sub" id="levelup-sub"></div>
+    <p class="levelup-stats" id="levelup-stats"></p>
+    <button id="levelup-next-btn"></button>
   </div>
 
   <div class="exam-modal" id="exam-modal">
@@ -210,8 +215,12 @@ const deliciousOverlayEl = document.querySelector<HTMLDivElement>('#delicious-ov
 const deliciousEmojisEl = document.querySelector<HTMLDivElement>('#delicious-emojis')!;
 const deliciousDishEl = document.querySelector<HTMLDivElement>('#delicious-dish')!;
 const levelupOverlayEl = document.querySelector<HTMLDivElement>('#levelup-overlay')!;
+const levelupEmojiEl = document.querySelector<HTMLDivElement>('#levelup-emoji')!;
 const levelupLabelEl = document.querySelector<HTMLDivElement>('#levelup-label')!;
 const levelupSubEl = document.querySelector<HTMLDivElement>('#levelup-sub')!;
+const levelupStatsEl = document.querySelector<HTMLParagraphElement>('#levelup-stats')!;
+const levelupNextBtn = document.querySelector<HTMLButtonElement>('#levelup-next-btn')!;
+const stopBtn = document.querySelector<HTMLButtonElement>('#stop-btn')!;
 
 const examEntryBtn = document.querySelector<HTMLButtonElement>('#exam-entry-btn')!;
 const examModalEl = document.querySelector<HTMLDivElement>('#exam-modal')!;
@@ -261,7 +270,11 @@ let examTower: TowerGame | undefined;
 let dishRevealTimer: number | undefined;
 let puzzleTransitionTimer: number | undefined;
 let deliciousOverlayTimer: number | undefined;
-let levelUpTimer: number | undefined;
+// Whether the metronome is currently running. Distinct from "has the player
+// started at all": 停止 leaves the board exactly as it is so 再開 can pick the
+// same order back up, and the level-clear screen borrows the same pause so the
+// beat isn't ticking away under a screen nobody is playing.
+let beatRunning = false;
 let examTimerTimeout: number | undefined;
 let examTransitionTimer: number | undefined;
 const tally = { just: 0, ok: 0, miss: 0, wrongWord: 0 };
@@ -493,14 +506,7 @@ function handleLand(event: LandEvent): void {
       runner.advanceToNextPuzzle();
 
       if (runner.levelIndex !== levelBefore) {
-        levelupLabelEl.textContent = `🎉 ${LEVELS[runner.levelIndex].label} 突入！`;
-        levelupSubEl.textContent = `${runner.stage.emoji} ${runner.stage.key} (${runner.stage.pattern}) が新登場`;
-        levelupOverlayEl.classList.add('show');
-        levelUpTimer = window.setTimeout(() => {
-          levelupOverlayEl.classList.remove('show');
-          tower!.loadPuzzle(runner.puzzle);
-          renderTicket();
-        }, 2400);
+        showLevelClear(levelBefore);
       } else {
         tower!.loadPuzzle(runner.puzzle);
         renderTicket();
@@ -508,6 +514,106 @@ function handleLand(event: LandEvent): void {
     }, PUZZLE_COMPLETE_PAUSE_MS);
   }
 }
+
+// A level ends when its whole pool of orders has been served, which is a real
+// achievement and used to flash past in 2.4 seconds on a timer. It now waits
+// for the player: the beat stops, the screen says which level was cleared, and
+// nothing advances until they press the button. Clearing the last level wraps
+// back to 入門 (see LevelRunner.advanceToNextPuzzle), so that case is worded as
+// finishing the whole game rather than as "next level".
+// What the next level actually adds. Naming runner.stage here would name one
+// randomly-drawn puzzle's pattern instead — which announced "SV が新登場" right
+// after 入門, whose entire job is SV.
+function nextLevelBlurb(clearedLevel: number): string {
+  const next = LEVELS[runner.levelIndex].stageIndices;
+  if (next.length === STAGES.length) return `全${STAGES.length}種類の文型がまざって登場`;
+
+  const cleared = new Set(LEVELS[clearedLevel].stageIndices);
+  const added = next.filter((i) => !cleared.has(i)).map((i) => STAGES[i].key);
+  return added.length ? `${added.join('・')} が新登場` : `${next.length}種類の文型を通しで`;
+}
+
+function showLevelClear(clearedLevel: number): void {
+  const wrapped = runner.levelIndex < clearedLevel;
+  stopBeat();
+
+  levelupEmojiEl.textContent = wrapped ? '🏆' : '🎉';
+  levelupLabelEl.textContent = wrapped
+    ? '全レベル制覇！'
+    : `${LEVELS[clearedLevel].label} クリア！おめでとう`;
+  levelupSubEl.textContent = wrapped
+    ? 'ぜんぶの注文をこなしました。シェフの称号にふさわしい腕前です。'
+    : `つぎは ${LEVELS[runner.levelIndex].label}：${nextLevelBlurb(clearedLevel)}`;
+  levelupStatsEl.textContent = `⭐ ${scoreTracker.score}　📖 レシピ ${recipeCollection.size}/${ALL_PUZZLES.length}`;
+  levelupNextBtn.textContent = wrapped
+    ? '入門からもう一度 ▶'
+    : `${LEVELS[runner.levelIndex].label} へ進む ▶`;
+
+  levelupOverlayEl.classList.add('show');
+  renderRunButtons();
+  levelupNextBtn.focus();
+}
+
+levelupNextBtn.addEventListener('click', () => {
+  levelupOverlayEl.classList.remove('show');
+  tower!.loadPuzzle(runner.puzzle);
+  renderTicket();
+  startBeat();
+});
+
+// ---- Run control (スタート / 停止) ----
+function clearRunTimers(): void {
+  for (const timer of [dishRevealTimer, puzzleTransitionTimer, deliciousOverlayTimer]) {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+  dishRevealTimer = undefined;
+  puzzleTransitionTimer = undefined;
+  deliciousOverlayTimer = undefined;
+}
+
+function startBeat(): void {
+  if (!audioContext || beatRunning) return;
+  scheduler = new Scheduler(audioContext, BPM, (beatNumber, time) => {
+    playClick(audioContext!, masterGain!, time, beatNumber % BEATS_PER_MEASURE);
+    indicator!.enqueue(beatNumber, time);
+    tower!.registerBeat(time);
+  });
+  scheduler.start();
+  beatRunning = true;
+  renderRunButtons();
+}
+
+// Stops the metronome without touching the board: the half-built order, the
+// score and the combo all survive, so 再開 continues the same plate.
+function stopBeat(): void {
+  scheduler?.stop();
+  scheduler = undefined;
+  indicator?.reset();
+  beatRunning = false;
+  renderRunButtons();
+}
+
+function renderRunButtons(): void {
+  // While the level-clear screen is up, its own button is the way forward — a
+  // 再開 sitting next to it would restart the beat behind the overlay.
+  const showStop = tower !== undefined && !levelupOverlayEl.classList.contains('show');
+  stopBtn.classList.toggle('hidden', !showStop);
+  stopBtn.textContent = beatRunning ? '⏸ 停止' : '▶ 再開';
+  startBtn.textContent = tower !== undefined ? '最初から' : 'スタート';
+  // Dimmed and click-through-proof, so a stopped game looks stopped rather
+  // than like a board that has quietly gone unresponsive.
+  gameBoardEl.classList.toggle('paused', tower !== undefined && !beatRunning);
+}
+
+stopBtn.addEventListener('click', async () => {
+  if (beatRunning) {
+    stopBeat();
+    clearRunTimers();
+  } else {
+    await ensureAudioContext();
+    startBeat();
+  }
+});
 
 function drawLoop(): void {
   requestAnimationFrame(drawLoop);
@@ -537,26 +643,10 @@ async function ensureAudioContext(): Promise<void> {
 startBtn.addEventListener('click', async () => {
   await ensureAudioContext();
 
-  scheduler?.stop();
-  if (dishRevealTimer !== undefined) {
-    clearTimeout(dishRevealTimer);
-    dishRevealTimer = undefined;
-  }
-  if (puzzleTransitionTimer !== undefined) {
-    clearTimeout(puzzleTransitionTimer);
-    puzzleTransitionTimer = undefined;
-  }
-  if (deliciousOverlayTimer !== undefined) {
-    clearTimeout(deliciousOverlayTimer);
-    deliciousOverlayTimer = undefined;
-  }
-  if (levelUpTimer !== undefined) {
-    clearTimeout(levelUpTimer);
-    levelUpTimer = undefined;
-  }
+  stopBeat();
+  clearRunTimers();
   deliciousOverlayEl.classList.remove('show');
   levelupOverlayEl.classList.remove('show');
-  indicator!.reset();
   scoreTracker.combo = 0;
   tally.just = 0;
   tally.ok = 0;
@@ -568,14 +658,7 @@ startBtn.addEventListener('click', async () => {
   renderTicket();
   tower!.loadPuzzle(runner.puzzle);
 
-  scheduler = new Scheduler(audioContext!, BPM, (beatNumber, time) => {
-    playClick(audioContext!, masterGain!, time, beatNumber % BEATS_PER_MEASURE);
-    indicator!.enqueue(beatNumber, time);
-    tower!.registerBeat(time);
-  });
-  scheduler.start();
-
-  startBtn.textContent = '再スタート';
+  startBeat();
 });
 
 function applyMode(): void {
@@ -600,6 +683,9 @@ muteBtn.addEventListener('click', () => {
 applyMute();
 
 window.addEventListener('keydown', (e) => {
+  // A stopped game accepts no taps — they would be judged against beats that
+  // are no longer playing, and 停止 is supposed to mean stopped.
+  if (!beatRunning) return;
   const roles = ROLE_KEY_MAP[e.key.toUpperCase()];
   if (!roles) return;
   e.preventDefault();

@@ -25,6 +25,7 @@ const FACE_ICON: Record<CustomerMood, string> = {
 const SHIRT = '#5aa9e6';
 const SPILL = '#b5741f';
 const SPILL_FOOD = '#e0a527';
+const HAIR = '#6d4523';
 
 function customerSvg(mood: CustomerMood): string {
   // A dropped dish only appears in the sad state; that is what makes the
@@ -40,6 +41,10 @@ function customerSvg(mood: CustomerMood): string {
     <svg class="customer-svg" viewBox="0 0 96 136" role="img" aria-label="お客さん">
       <path d="M18 132V104a30 30 0 0 1 60 0v28z" fill="${SHIRT}"/>
       <use href="#ci-${FACE_ICON[mood]}" x="14" y="12" width="68" height="68"/>
+      <!-- The emoji faces are bare heads. Hair is drawn over the top of the
+           skull only, stopping well above the brows so it never hides the
+           expression that carries the reaction. -->
+      <path d="M21.5 31 A31 31 0 0 1 74.5 31 Z" fill="${HAIR}"/>
       ${spill}
     </svg>
   `;

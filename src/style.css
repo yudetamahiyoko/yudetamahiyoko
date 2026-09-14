@@ -250,6 +250,29 @@ body {
   font-size: 0.9rem;
   font-weight: 700;
   color: #f3e6ff;
+  max-width: min(32rem, 88vw);
+  line-height: 1.5;
+}
+
+.levelup-stats {
+  margin: 0.2rem 0 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e4d2f7;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The overlay is purple, so the default mustard button would read as a warning
+   against it; white keeps "carry on" as the obvious next move. */
+#levelup-next-btn {
+  background: #fff;
+  color: #5f3785;
+  font-weight: 800;
+  box-shadow: 0 6px 18px rgba(43, 38, 32, 0.3);
+}
+
+#levelup-next-btn:hover {
+  background: #f3e6ff;
 }
 
 .stage {
@@ -463,28 +486,35 @@ h1 {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.tower-area.zoomed-out {
-  transform: scale(0.74) translateY(-10px);
 }
 
 .tower-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: none;
   transform-origin: 50% 100%;
 }
 
 /* The plated sentence and the customer waiting for it sit side by side, so the
    dish is being handed toward someone rather than assembled in a vacuum. */
+/* Scaled from JS to whatever fits (see fitServiceRow). A five-word sentence is
+   wider than a phone screen at full card size, and the whole point of laying
+   the words out in a row is being able to read the sentence in one look — so
+   the row shrinks to stay whole rather than being clipped or scrolled. */
 .service-row {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 0.75rem;
-  width: 100%;
+  /* Sized to its contents rather than to the stage, so its layout width is the
+     honest "how much room does this sentence want" number that fitServiceRow
+     divides by. At width:100% the row centred its own overflow and reported a
+     scrollWidth that missed the part hanging off the left. .tower-area centres
+     it. */
+  width: max-content;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease-out;
 }
 
 /* Cosmetic-only: a mistimed hit still lands, this just visibly says "a bit
@@ -629,6 +659,13 @@ h1 {
   min-height: 72px;
 }
 
+/* Between the last word landing and the next order arriving the tray holds
+   nothing, and a shrink-wrapped empty flex box drew as a stray pale capsule
+   under the finished sentence. */
+.tray:empty {
+  display: none;
+}
+
 /* Chunk "card": an illustration on top, the English word underneath, framed in
    the chunk's grammatical-role color. Used in both the tray and (smaller, once
    placed) on the tower.
@@ -638,8 +675,11 @@ h1 {
    unchanged; only the height grows to fit the second row. */
 .tray-chunk {
   position: relative;
-  width: 78px;
-  height: 90px;
+  /* Wider than tall enough for the word: this is a reading game, so the English
+     is the point and the picture is the hint. The card grew when the artwork
+     did, which squeezed the text down to a size that was hard to read. */
+  width: 92px;
+  height: 92px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -693,19 +733,19 @@ h1 {
 /* SVG icons and the emoji they're replacing must occupy the same box, so a
    card looks identical in size whether or not its concept has an icon yet. */
 .chunk-icon {
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 1.95rem;
+  height: 1.95rem;
   display: block;
 }
 
 .chunk-emoji {
-  font-size: 2.05rem;
+  font-size: 1.7rem;
   line-height: 1;
 }
 
 .tray-chunk.placed .chunk-icon {
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .tray-chunk.placed .chunk-emoji {
@@ -744,7 +784,7 @@ h1 {
   width: 100%;
   color: #fff;
   font-weight: 800;
-  font-size: 0.56rem;
+  font-size: 0.78rem;
   line-height: 1.15;
   text-align: center;
   overflow-wrap: break-word;
@@ -877,19 +917,37 @@ h1 {
   pointer-events: none;
 }
 
+/* Placed cards size to their word instead of to the widest word in the game.
+   Five uniform 92px tiles are 460px before the customer is even placed, which
+   forces the whole row to be scaled down far enough that the English becomes
+   unreadable — and most of that width is empty space around "us" or "a". Sized
+   to content, the same sentence fits at a much larger type size. Height stays
+   fixed so the row never jumps as words land. */
 .tray-chunk.placed {
-  width: 78px;
-  height: 58px;
+  width: auto;
+  min-width: 46px;
+  max-width: 104px;
+  /* Without this the row squeezes the cards itself before fitServiceRow gets a
+     say, and `overflow-wrap: break-word` then chops words mid-syllable
+     ("brot/her"). One shrink, applied uniformly to the whole row, is legible;
+     two stacked shrinks are not. */
+  flex: none;
+  height: 72px;
   cursor: default;
-  padding: 15px 3px 4px;
+  padding: 15px 7px 4px;
   gap: 1px;
 }
 
 /* Stacked cards are read as one sentence top-to-bottom, so keep the word on a
    single line here — two-line wrapping would make the tower jump in height. */
+/* Two lines here as well, on a fixed-height card so the row cannot jump: a
+   clipped "in five min…" costs real information in a sentence being read. */
 .tray-chunk.placed .tray-chunk-word {
-  -webkit-line-clamp: 1;
-  font-size: 0.52rem;
+  -webkit-line-clamp: 2;
+  font-size: 0.8rem;
+  /* Tight enough that two lines actually fit inside the fixed card height —
+     at the default leading the second line was being clipped. */
+  line-height: 1.15;
 }
 
 .game-board.hide-role-labels .tray-chunk.placed,
@@ -956,6 +1014,30 @@ h1 {
   padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
   background: var(--panel);
   box-shadow: 0 -6px 18px rgba(43, 38, 32, 0.12);
+}
+
+.run-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Quieter than スタート: stopping is the escape hatch, not the main action. */
+.stop-btn {
+  padding: 0.5rem 1.1rem;
+  font-size: 0.85rem;
+  background: rgba(43, 38, 32, 0.09);
+  color: var(--ink-soft);
+}
+
+.stop-btn:hover {
+  background: rgba(43, 38, 32, 0.16);
+}
+
+.game-board.paused {
+  opacity: 0.45;
+  pointer-events: none;
+  filter: grayscale(0.5);
 }
 
 .hint {
@@ -1391,4 +1473,28 @@ button:hover {
 
 .credit a {
   color: var(--mustard-deep);
+}
+
+/* Narrow screens. A five-chunk sentence wants ~380px of cards, so on a phone
+   the row has to be scaled down (see fitServiceRow) and every pixel taken back
+   here comes straight off that shrink — which is the difference between a
+   readable English word and a squinting one. The stage padding and the
+   customer are the two things that can give without losing meaning. */
+@media (max-width: 600px) {
+  .stage {
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+  }
+
+  .service-row {
+    gap: 0.35rem;
+  }
+
+  .customer-svg {
+    width: 48px;
+  }
+
+  .tray-chunk.placed {
+    max-width: 88px;
+  }
 }

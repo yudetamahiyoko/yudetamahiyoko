@@ -32,6 +32,7 @@ export class TowerGame {
   private towerAreaEl: HTMLDivElement;
   private towerWrapEl: HTMLDivElement;
   private towerStackEl: HTMLDivElement;
+  private serviceRowEl: HTMLDivElement;
   private onLand: (event: LandEvent) => void;
 
   private audioContext: AudioContext;
@@ -56,7 +57,7 @@ export class TowerGame {
 
     this.root.innerHTML = `
       <div class="tower-area" id="tower-area">
-        <div class="service-row">
+        <div class="service-row" id="service-row">
           <div class="tower-wrap" id="tower-wrap">
             <div class="tower-stack" id="tower-stack"></div>
             <div class="tower-base"></div>
@@ -69,7 +70,26 @@ export class TowerGame {
     this.towerAreaEl = this.root.querySelector('#tower-area')!;
     this.towerWrapEl = this.root.querySelector('#tower-wrap')!;
     this.towerStackEl = this.root.querySelector('#tower-stack')!;
+    this.serviceRowEl = this.root.querySelector('#service-row')!;
     this.trayEl = this.root.querySelector('#tray')!;
+
+    window.addEventListener('resize', () => this.fitServiceRow());
+  }
+
+  // The row is laid out at full card size and then scaled down to whatever the
+  // stage can show. Sized in CSS instead, the cards would have to be small
+  // enough for the longest sentence on the narrowest phone at all times — the
+  // English word is the thing being taught, so it stays as large as it can be
+  // and only shrinks on the sentences and screens that actually force it.
+  private fitServiceRow(): void {
+    const avail = this.towerAreaEl.clientWidth;
+    // offsetWidth is the layout width and ignores the transform, so the reading
+    // never compounds with the scale already applied.
+    const needed = this.serviceRowEl.offsetWidth;
+    if (!avail || !needed) return;
+
+    const scale = Math.min(1, avail / needed);
+    this.serviceRowEl.style.transform = scale < 1 ? `scale(${scale.toFixed(3)})` : '';
   }
 
   // `decoys` are extra chunks shown in the tray that aren't part of this
@@ -87,7 +107,7 @@ export class TowerGame {
     this.pulseQueue = [];
     this.towerStackEl.innerHTML = '';
     this.trayEl.innerHTML = '';
-    this.towerAreaEl.classList.remove('zoomed-out');
+    this.serviceRowEl.style.transform = '';
 
     const order = puzzle.chunks.map((chunk, seq) => ({ chunk, seq }));
     const decoyEntries = decoys.map((chunk, i) => ({ chunk, seq: -(i + 1) }));
@@ -192,7 +212,6 @@ export class TowerGame {
 
     this.flyToTarget(item, () => {
       item.el.classList.add('placed', `landed-${timing}`);
-      if (complete) this.towerAreaEl.classList.add('zoomed-out');
     });
 
     this.onLand({ kind: 'landed', timing, diffMs, complete });
@@ -252,6 +271,7 @@ export class TowerGame {
       item.el.style.top = '';
       item.el.style.margin = '';
       this.towerStackEl.appendChild(item.el);
+      this.fitServiceRow();
       onArrive();
     };
 
